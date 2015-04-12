@@ -14,7 +14,7 @@ function pmproblr_init()
 {
 	//remove the default login report
 	global $pmpro_reports;
-	unset($pmpro_reports['login']);
+	unset($pmpro_reports['login']);		
 	
 	//some functions we might need
 	if(!function_exists('pmpro_isDateThisWeek'))
@@ -30,6 +30,25 @@ function pmproblr_init()
 			$date_year = intval(date("Y", $date));
 
 			if($date_week === $this_week && $date_year === $this_year)
+				return true;
+			else
+				return false;
+		}
+	}
+		
+	if(!function_exists('pmpro_isDateThisMonth'))
+	{
+		function pmpro_isDateThisMonth($str)
+		{
+			$now = current_time('timestamp');
+			$this_month = intval(date("n", $now));
+			$this_year = intval(date("Y", $now));
+
+			$date = strtotime($str, $now);
+			$date_month = intval(date("n", $date));
+			$date_year = intval(date("Y", $date));
+
+			if($date_month === $this_month && $date_year === $this_year)
 				return true;
 			else
 				return false;
