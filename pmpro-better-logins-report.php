@@ -2,7 +2,7 @@
 /*
 Plugin Name: PMPro Better Logins Report
 Plugin URI: http://www.paidmembershipspro.com/wp/pmpro-better-logins-report/
-Description: Adds login, view, and visit stats for "thisweek" and "year to date".
+Description: Adds login, view, and visit stats for "This Week" and "This Year".
 Version: .1
 Author: Stranger Studios
 Author URI: http://www.strangerstudios.com
