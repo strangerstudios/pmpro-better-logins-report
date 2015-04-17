@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: PMPro Better Logins Report
+Plugin Name: Paid Memberships Pro - Better Logins Report
 Plugin URI: http://www.paidmembershipspro.com/wp/pmpro-better-logins-report/
 Description: Adds login, view, and visit stats for "This Week" and "This Year".
 Version: .1
