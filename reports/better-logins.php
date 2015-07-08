@@ -20,14 +20,9 @@ function pmpro_report_better_login_widget()
 	global $wpdb;
 	$now = current_time('timestamp');
 	
-	$visits = get_option("pmpro_visits", array("today"=>0, "thisday"=>date("Y-m-d", $now), "alltime"=>0, "month"=>0, "thismonth"=>date("n", $now), "week"=>0, "thisweek"=>date("W", $now), "ytd"=>0, "thisyear"=>date("Y", $now)));
-	$views = get_option("pmpro_views", array("today"=>0, "thisday"=>date("Y-m-d", $now), "alltime"=>0, "month"=>0, "thismonth"=>date("n", $now), "week"=>0, "thisweek"=>date("W", $now), "ytd"=>0, "thisyear"=>date("Y", $now)));
-	$logins = get_option("pmpro_logins", array("today"=>0, "thisday"=>date("Y-m-d", $now), "alltime"=>0, "month"=>0, "thismonth"=>date("n", $now), "week"=>0, "thisweek"=>date("W", $now), "ytd"=>0, "thisyear"=>date("Y", $now)));
-
-	//avoid notices when first activating the plugin
-	$visits = pmproblr_fixOptions($visits);
-	$views = pmproblr_fixOptions($views);
-	$logins = pmproblr_fixOptions($logins);
+	$visits = pmproblr_getAllValues('visits');
+	$views = pmproblr_getAllValues('views');
+	$logins = pmproblr_getAllValues('logins');
 ?>
 <div style="width: 33%; float: left;">
 	<p><?php _e('Visits Today', 'pmpro')?>: <?php echo $visits['today'];?></p>
@@ -256,111 +251,242 @@ function pmpro_report_better_login_page()
 /*
 	Other code required for your reports. This file is loaded every time WP loads with PMPro enabled.
 */
+//get values for a user
+function pmproblr_getValuesForUser($type, $user_id = NULL)
+{
+	//default to current user
+	if(empty($user_id))
+	{
+		global $current_user;
+		$user_id = $current_user->ID;
+	}
 
-//track visits
-function pmpro_report_better_login_wp_visits()
+	//need a type and user
+	if(empty($type) || empty($user_id))
+		return false;
+
+	//get values from user meta
+	$values = get_user_meta($user_id, "pmpro_" . $type, true);
+
+	//clean them up
+	if(empty($values))
+		$values = array("last"=>"N/A", "thisdate"=>NULL, "week"=>0, "thisweek"=>NULL, "month"=>0, "thismonth"=>NULL, "ytd"=>0, "thisyear"=>NULL, "alltime"=>0);
+	else
+	{
+		//check if we should reset any of the values
+		$now = current_time('timestamp');
+		$thisdate = date("Y-d-m", $now);
+		$thisweek = date("W", $now);
+		$thismonth = date("n", $now);
+		$thisyear = date("Y", $now);
+
+		if($thisdate != $values['thisdate'])
+		{
+			$values['today'] = 0;
+			$values['thisdate'] = $thisdate;
+			$update = true;
+		}
+
+		if($thisweek != $values['thisweek'])
+		{
+			$values['week'] = 0;
+			$values['thisweek'] = $thisweek;
+			$update = true;
+		}
+
+		if($thismonth != $values['thismonth'])
+		{
+			$values['month'] = 0;
+			$values['thismonth'] = $thismonth;
+			$update = true;
+		}
+				
+		if($thisyear != $values['thisyear'])
+		{
+			$values['ytd'] = 0;
+			$values['thisyear'] = $thisyear;
+			$update = true;
+		}
+
+		if(!empty($update))
+			update_user_meta($user_id, 'pmpro_' . $type, $values);
+	}
+
+	return $values;
+}
+
+//get values for a user
+function pmproblr_getAllValues($type)
+{
+	//need a type and user
+	if(empty($type))
+		return false;
+
+	$allvalues = get_option("pmpro_" . $type);	
+	if(empty($allvalues))
+		$allvalues = array("today"=>0, "thisdate"=>NULL, "week"=>0, "thisweek"=>NULL, "month"=>0, "thismonth"=> NULL, "ytd"=>0, "thisyear"=>NULL, "alltime"=>0);
+	else
+	{
+		//check if we should reset any of the values
+		$now = current_time('timestamp');
+		$thisdate = date("Y-d-m", $now);
+		$thisweek = date("W", $now);
+		$thismonth = date("n", $now);
+		$thisyear = date("Y", $now);
+
+		if($thisdate != $allvalues['thisdate'])
+		{
+			$allvalues['today'] = 0;
+			$allvalues['thisdate'] = $thisdate;
+			$update = true;
+		}
+
+		if($thisweek != $allvalues['thisweek'])
+		{
+			$allvalues['week'] = 0;
+			$allvalues['thisweek'] = $thisweek;
+			$update = true;
+		}
+
+		if($thismonth != $allvalues['thismonth'])
+		{
+			$allvalues['month'] = 0;
+			$allvalues['thismonth'] = $thismonth;
+			$update = true;
+		}
+				
+		if($thisyear != $allvalues['thisyear'])
+		{
+			$allvalues['ytd'] = 0;
+			$allvalues['thisyear'] = $thisyear;
+			$update = true;
+		}
+
+		if(!empty($update))
+			update_option('pmpro_' . $type, $allvalues);
+	}
+
+	return $allvalues;
+}
+
+//track visits, views, and logins and save to user meta
+function pmproblr_trackValues($type, $user_id = NULL)
 {
 	//don't track admin
 	if(is_admin())
-		return;
-	
-	//only track logged in users
-	if(!is_user_logged_in())
-		return;
-	
-	//check for cookie
-	if(!empty($_COOKIE['pmpro_visit']))
-		return;
-	
+		return false;
+
+	//default to current user
+	if(empty($user_id))
+	{
+		global $current_user;
+		$user_id = $current_user->ID;
+	}
+
+	//need a type
+	if(empty($type))
+		return false;
+
+	//check for cookie for visits
+	if($type == "visits" && !empty($_COOKIE['pmpro_visit']))
+		return false;
+
+	//set cookie for visits
+	if($type == "visits" && empty($_COOKIE['pmpro_visit']))
+		setcookie("pmpro_visit", "1", NULL, COOKIEPATH, COOKIE_DOMAIN, false);	
+
+	//some vars for below
 	$now = current_time('timestamp');
 	$thisdate = date("Y-d-m", $now);
 	$thisweek = date("W", $now);
 	$thismonth = date("n", $now);
 	$thisyear = date("Y", $now);
-	
-	//set cookie, then track
-	setcookie("pmpro_visit", "1", NULL, COOKIEPATH, COOKIE_DOMAIN, false);	
-	
-	global $current_user;
-	//track for user
-	if(!empty($current_user->ID))
-	{		
-		$visits = $current_user->pmpro_visits;		
-		if(empty($visits))
-			$visits = array("last"=>"N/A", "thisdate"=>NULL, "week"=>0, "thisweek"=>NULL, "month"=>0, "thismonth"=>NULL, "ytd"=>0, "thisyear"=>NULL, "alltime"=>0);
+
+	//track user stats if we have one
+	if(!empty($user_id))
+	{
+		//get values
+		$values = pmproblr_getValuesForUser($type, $user_id);
+
+		if($values !== false)
+		{
+			//track for user
+			$values['last'] = date(get_option("date_format"), $now);
+			$values['alltime']++;
 			
-		//track logins for user
-		$visits['last'] = date(get_option("date_format"), $now);
-		$visits['alltime']++;
-		
-		if($thisweek == $visits['thisweek'])
-			$visits['week']++;
-		else
-		{
-			$visits['week'] = 1;
-			$visits['thisweek'] = $thisweek;
-		}
+			if($thisweek == $values['thisweek'])
+				$values['week']++;
+			else
+			{
+				$values['week'] = 1;
+				$values['thisweek'] = $thisweek;
+			}
+					
+			if($thismonth == $values['thismonth'])
+				$values['month']++;
+			else
+			{
+				$values['month'] = 1;
+				$values['thismonth'] = $thismonth;
+			}
+					
+			if($thisyear == $values['thisyear'])
+				$values['ytd']++;
+			else
+			{
+				$values['ytd'] = 1;
+				$values['thisyear'] = $thisyear;
+			}		
 				
-		if($thismonth == $visits['thismonth'])
-			$visits['month']++;
-		else
-		{
-			$visits['month'] = 1;
-			$visits['thismonth'] = $thismonth;
+			//update user data
+			update_user_meta($user_id, "pmpro_" . $type, $values);
 		}
-				
-		if($thisyear == $visits['thisyear'])
-			$visits['ytd']++;
-		else
-		{
-			$visits['ytd'] = 1;
-			$visits['thisyear'] = $thisyear;
-		}		
-		
-		//update user data
-		update_user_meta($current_user->ID, "pmpro_visits", $visits);
 	}
-		
-	//track for all
-	$visits = get_option("pmpro_visits");	
-	if(empty($visits))
-		$visits = array("today"=>0, "thisdate"=>NULL, "week"=>0, "thisweek"=>NULL, "month"=>0, "thismonth"=> NULL, "ytd"=>0, "thisyear"=>NULL, "alltime"=>0);
+
+	//track cumulative stats
+	$allvalues = pmproblr_getAllValues($type);
+
+	$allvalues['alltime']++;	
 	
-	$visits['alltime']++;	
-	
-	if($thisdate == $visits['thisdate'])
-		$visits['today']++;
+	if($thisdate == $allvalues['thisdate'])
+		$allvalues['today']++;
 	else
 	{
-		$visits['today'] = 1;
-		$visits['thisdate'] = $thisdate;
+		$allvalues['today'] = 1;
+		$allvalues['thisdate'] = $thisdate;
 	}
 	
-	if($thisweek == $visits['thisweek'])
-		$visits['week']++;
+	if($thisweek == $allvalues['thisweek'])
+		$allvalues['week']++;
 	else
 	{
-		$visits['week'] = 1;
-		$visits['thisweek'] = $thisweek;
+		$allvalues['week'] = 1;
+		$allvalues['thisweek'] = $thisweek;
 	}
 	
-	if($thismonth == $visits['thismonth'])
-		$visits['month']++;
+	if($thismonth == $allvalues['thismonth'])
+		$allvalues['month']++;
 	else
 	{
-		$visits['month'] = 1;
-		$visits['thismonth'] = $thismonth;
+		$allvalues['month'] = 1;
+		$allvalues['thismonth'] = $thismonth;
 	}
 	
-	if($thisyear == $visits['thisyear'])
-		$visits['ytd']++;
+	if($thisyear == $allvalues['thisyear'])
+		$allvalues['ytd']++;
 	else
 	{
-		$visits['ytd'] = 1;
-		$visits['thisyear'] = $thisyear;
+		$allvalues['ytd'] = 1;
+		$allvalues['thisyear'] = $thisyear;
 	}
-	
-	update_option("pmpro_visits", $visits);		
+
+	update_option('pmpro_' . $type, $allvalues);
+}
+
+//track visits
+function pmpro_report_better_login_wp_visits()
+{
+	pmproblr_trackValues("visits");	
 }
 add_action("wp", "pmpro_report_better_login_wp_visits");
 
@@ -376,168 +502,13 @@ add_action("wp_logout", "pmpro_report_better_login_clear_visit_cookie");
 //track views
 function pmpro_report_better_login_wp_views()
 {
-	//don't track admin
-	if(is_admin())
-		return;
-	
-	$now = current_time('timestamp');
-	$thisdate = date("Y-d-m", $now);
-	$thisweek = date("W", $now);
-	$thismonth = date("n", $now);
-	$thisyear = date("Y", $now);
-	
-	global $current_user;
-	//track for user
-	if(!empty($current_user->ID))
-	{		
-		$views = $current_user->pmpro_views;		
-		if(empty($views))
-			$views = array("last"=>"N/A", "thisdate"=>NULL, "week"=>0, "thisweek"=>NULL, "month"=>0, "thismonth"=>NULL, "ytd"=>0, "thisyear"=>NULL, "alltime"=>0);
-				
-		//track logins for user
-		$views['last'] = date(get_option("date_format"), $now);
-		$views['alltime']++;
-		
-		if(isset($views['thisweek']) && $thisweek == $views['thisweek'])
-			$views['week']++;
-		else
-		{
-			$views['week'] = 1;
-			$views['thisweek'] = $thisweek;
-		}
-		
-		if(isset($views['thismonth']) && $thismonth == $views['thismonth'])
-			$views['month']++;
-		else
-		{
-			$views['month'] = 1;
-			$views['thismonth'] = $thismonth;
-		}
-		
-		if(isset($views['thisyear']) && $thisyear == $views['thisyear'])
-			$views['ytd']++;
-		else
-		{
-			$views['ytd'] = 1;
-			$views['thisyear'] = $thisyear;
-		}
-		
-		//update user data
-		update_user_meta($current_user->ID, "pmpro_views", $views);
-	}
-		
-	//track for all
-	$views = get_option("pmpro_views");	
-	if(empty($views))
-		$views = array("today"=>0, "thisdate"=>NULL, "week"=>0, "thisweek"=>NULL, "month"=>0, "thismonth"=>NULL, "ytd"=>0, "thisyear"=>NULL, "alltime"=>0);
-	
-	$views['alltime']++;
-	
-	if($thisdate == $views['thisdate'])
-		$views['today']++;
-	else
-	{
-		$views['today'] = 1;
-		$views['thisdate'] = $thisdate;
-	}
-	
-	if(isset($views['thisweek']) && $thisweek == $views['thisweek'])
-		$views['week']++;
-	else
-	{
-		$views['week'] = 1;
-		$views['thisweek'] = $thisweek;
-	}
-	
-	if(isset($views['thismonth']) && $thismonth == $views['thismonth'])
-		$views['month']++;
-	else
-	{
-		$views['month'] = 1;
-		$views['thismonth'] = $thismonth;
-	}
-	
-	if(isset($views['thisyear']) && $thisyear == $views['thisyear'])
-		$views['ytd']++;
-	else
-	{
-		$views['ytd'] = 1;
-		$views['thisyear'] = $thisyear;
-	}
-	
-	update_option("pmpro_views", $views);		
+	pmproblr_trackValues("views");
 }
-add_action("wp", "pmpro_report_better_login_wp_views");
+add_action("wp_head", "pmpro_report_better_login_wp_views");
 
 //track logins
 function pmpro_report_better_login_wp_login($user_login)
 {
-	//get user data
-	$user = get_user_by("login", $user_login);	
-	$logins = $user->pmpro_logins;
-	if(empty($logins))
-		$logins = array("last"=>"N/A", "thisdate"=>NULL, "week"=>0, "thisweek"=>NULL, "month"=>0, "thismonth"=>NULL, "ytd"=>0, "thisyear"=>NULL, "alltime"=>0);
-	
-	$now = current_time('timestamp');
-	$thisdate = date("Y-d-m", $now);
-	$thisweek = date("W", $now);
-	$thismonth = date("n", $now);
-	$thisyear = date("Y", $now);
-	
-	//track logins for user
-	$logins['last'] = date(get_option("date_format"), $now);
-	$logins['alltime']++;
-	
-	if($thismonth == $logins['thismonth'])
-		$logins['month']++;
-	else
-	{		
-		$logins['month'] = 1;
-		$logins['thismonth'] = $thismonth;
-	}
-	
-	//update user data
-	update_user_meta($user->ID, "pmpro_logins", $logins);
-	
-	//track logins overall
-	$logins = get_option("pmpro_logins");
-	if(empty($logins))
-		$logins = array("today"=>0, "thisdate"=>NULL, "week"=>0, "thisweek"=>NULL, "month"=>0, "thismonth"=>NULL, "ytd"=>0, "thisyear"=>NULL, "alltime"=>0);
-	
-	$logins['alltime']++;
-	
-	if($thisdate == $logins['thisdate'])
-		$logins['today']++;
-	else
-	{
-		$logins['today'] = 1;
-		$logins['thisdate'] = $thisdate;
-	}
-	
-	if($thisweek == $logins['thisweek'])
-		$logins['week']++;
-	else
-	{
-		$logins['week'] = 1;
-		$logins['thisweek'] = $thisweek;
-	}
-	
-	if($thismonth == $logins['thismonth'])
-		$logins['month']++;
-	else
-	{
-		$logins['month'] = 1;
-		$logins['thismonth'] = $thismonth;
-	}
-	
-	if($thisyear == $logins['thisyear'])
-		$logins['ytd']++;
-	else
-	{
-		$logins['ytd'] = 1;
-		$logins['thisyear'] = $thisyear;
-	}
-	
-	update_option("pmpro_logins", $logins);		
+	pmproblr_trackValues("logins");	
 }
 add_action("wp_login", "pmpro_report_better_login_wp_login");

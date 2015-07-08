@@ -3,7 +3,7 @@
 Plugin Name: Paid Memberships Pro - Better Logins Report
 Plugin URI: http://www.paidmembershipspro.com/wp/pmpro-better-logins-report/
 Description: Adds login, view, and visit stats for "This Week" and "This Year".
-Version: .1
+Version: .2
 Author: Stranger Studios
 Author URI: http://www.strangerstudios.com
 */
@@ -75,6 +75,9 @@ function pmproblr_init()
 add_action('init', 'pmproblr_init');
 
 /*
+	Deprecated. Functionality has been moved into the pmproblr_getValues function
+	in reports/better-logins.php.
+
 	When first installing this plugin, the view/visits/logins reporting options
 	won't have elements that this plugin will be expecting.
 	
