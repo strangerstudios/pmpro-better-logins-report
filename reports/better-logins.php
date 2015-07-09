@@ -280,28 +280,28 @@ function pmproblr_getValuesForUser($type, $user_id = NULL)
 		$thismonth = date("n", $now);
 		$thisyear = date("Y", $now);
 
-		if($thisdate != $values['thisdate'])
+		if(!isset($values['thisdate']) || $thisdate != $values['thisdate'])
 		{
 			$values['today'] = 0;
 			$values['thisdate'] = $thisdate;
 			$update = true;
 		}
 
-		if($thisweek != $values['thisweek'])
+		if(!isset($values['thisweek']) || $thisweek != $values['thisweek'])
 		{
 			$values['week'] = 0;
 			$values['thisweek'] = $thisweek;
 			$update = true;
 		}
 
-		if($thismonth != $values['thismonth'])
+		if(!isset($values['thismonth']) || $thismonth != $values['thismonth'])
 		{
 			$values['month'] = 0;
 			$values['thismonth'] = $thismonth;
 			$update = true;
 		}
 				
-		if($thisyear != $values['thisyear'])
+		if(!isset($values['thisyear']) || $thisyear != $values['thisyear'])
 		{
 			$values['ytd'] = 0;
 			$values['thisyear'] = $thisyear;
@@ -334,28 +334,28 @@ function pmproblr_getAllValues($type)
 		$thismonth = date("n", $now);
 		$thisyear = date("Y", $now);
 
-		if($thisdate != $allvalues['thisdate'])
+		if(!isset($allvalues['thisdate']) || $thisdate != $allvalues['thisdate'])
 		{
 			$allvalues['today'] = 0;
 			$allvalues['thisdate'] = $thisdate;
 			$update = true;
 		}
 
-		if($thisweek != $allvalues['thisweek'])
+		if(!isset($allvalues['thisweek']) || $thisweek != $allvalues['thisweek'])
 		{
 			$allvalues['week'] = 0;
 			$allvalues['thisweek'] = $thisweek;
 			$update = true;
 		}
 
-		if($thismonth != $allvalues['thismonth'])
+		if(!isset($allvalues['thismonth']) || $thismonth != $allvalues['thismonth'])
 		{
 			$allvalues['month'] = 0;
 			$allvalues['thismonth'] = $thismonth;
 			$update = true;
 		}
 				
-		if($thisyear != $allvalues['thisyear'])
+		if(!isset($allvalues['thisyear']) || $thisyear != $allvalues['thisyear'])
 		{
 			$allvalues['ytd'] = 0;
 			$allvalues['thisyear'] = $thisyear;
