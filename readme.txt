@@ -3,7 +3,7 @@ Contributors: strangerstudios
 Tags: pmpro, paid memberships pro, reports, logins, visits, views, tracking, user tracking
 Requires at least: 3.5
 Tested up to: 4.2.2
-Stable tag: .2.1
+Stable tag: .2.2
 
 Adds login, view, and visit stats for "This Week" and "This Year".
 
@@ -29,6 +29,9 @@ Please post it in the issues section of GitHub and we'll fix it as soon as we ca
 Please visit our premium support site at http://www.paidmembershipspro.com for more documentation and our support forums.
 
 == Changelog ==
+= .2.2 =
+* Only loading reports/better-logins.php and functions if PMPro activated.
+
 = .2.1 =
 * Fixed some notices.
 
