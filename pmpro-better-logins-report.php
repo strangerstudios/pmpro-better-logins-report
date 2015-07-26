@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Paid Memberships Pro - Better Logins Report
+Plugin Name: Paid Memberships Pro - Better Logins Report Add On
 Plugin URI: http://www.paidmembershipspro.com/wp/pmpro-better-logins-report/
 Description: Adds login, view, and visit stats for "This Week" and "This Year".
 Version: .2.2
@@ -104,3 +104,30 @@ function pmproblr_fixOptions($option)
 		
 	return $option;
 }
+
+/*
+Function to add links to the plugin action links
+*/
+function pmproblr_add_action_links($links) {
+	$new_links = array(
+			'<a href="' . get_admin_url(NULL, "admin.php?page=pmpro-reports&report=better_login") . '">View Report</a>',
+	);
+	return array_merge($new_links, $links);
+}
+add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'pmproblr_add_action_links');
+
+/*
+Function to add links to the plugin row meta
+*/
+function pmproblr_plugin_row_meta($links, $file) {
+	if(strpos($file, 'pmpro-better-logins-report.php') !== false)
+	{
+		$new_links = array(
+			'<a href="' . esc_url('http://www.paidmembershipspro.com/add-ons/plugins-on-github/better-login-view-visits-report/') . '" title="' . esc_attr( __( 'View Documentation', 'pmpro' ) ) . '">' . __( 'Docs', 'pmpro' ) . '</a>',
+			'<a href="' . esc_url('http://paidmembershipspro.com/support/') . '" title="' . esc_attr( __( 'Visit Customer Support Forum', 'pmpro' ) ) . '">' . __( 'Support', 'pmpro' ) . '</a>',
+		);
+		$links = array_merge($links, $new_links);
+	}
+	return $links;
+}
+add_filter('plugin_row_meta', 'pmproblr_plugin_row_meta', 10, 2);
