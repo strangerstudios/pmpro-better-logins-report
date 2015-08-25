@@ -88,7 +88,7 @@ function pmpro_report_better_login_page()
 	<p class="search-box">
 		<label class="hidden" for="post-search-input"><?php _ex('Search', 'Search form label', 'pmpro')?> <?php if(empty($l)) echo "Users"; else echo "Members";?>:</label>
 		<input type="hidden" name="page" value="pmpro-reports" />		
-		<input type="hidden" name="report" value="login" />		
+		<input type="hidden" name="report" value="better_login" />		
 		<input id="post-search-input" type="text" value="<?php echo esc_attr($s)?>" name="s"/>
 		<input class="button" type="submit" value="Search Members"/>
 	</p>
