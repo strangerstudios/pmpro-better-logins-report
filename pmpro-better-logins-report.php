@@ -3,7 +3,7 @@
 Plugin Name: Paid Memberships Pro - Better Logins Report Add On
 Plugin URI: http://www.paidmembershipspro.com/wp/pmpro-better-logins-report/
 Description: Adds login, view, and visit stats for "This Week" and "This Year".
-Version: .2.3
+Version: .2.3.1
 Author: Stranger Studios
 Author URI: http://www.strangerstudios.com
 */
@@ -123,7 +123,7 @@ function pmproblr_plugin_row_meta($links, $file) {
 	if(strpos($file, 'pmpro-better-logins-report.php') !== false)
 	{
 		$new_links = array(
-			'<a href="' . esc_url('http://www.paidmembershipspro.com/add-ons/plugins-on-github/better-login-view-visits-report/') . '" title="' . esc_attr( __( 'View Documentation', 'pmpro' ) ) . '">' . __( 'Docs', 'pmpro' ) . '</a>',
+			'<a href="' . esc_url('http://www.paidmembershipspro.com/add-ons/plus-add-ons/better-login-view-visits-report/') . '" title="' . esc_attr( __( 'View Documentation', 'pmpro' ) ) . '">' . __( 'Docs', 'pmpro' ) . '</a>',
 			'<a href="' . esc_url('http://paidmembershipspro.com/support/') . '" title="' . esc_attr( __( 'Visit Customer Support Forum', 'pmpro' ) ) . '">' . __( 'Support', 'pmpro' ) . '</a>',
 		);
 		$links = array_merge($links, $new_links);

@@ -24,28 +24,50 @@ function pmpro_report_better_login_widget()
 	$views = pmproblr_getAllValues('views');
 	$logins = pmproblr_getAllValues('logins');
 ?>
-<div style="width: 33%; float: left;">
-	<p><?php _e('Visits Today', 'pmpro')?>: <?php echo $visits['today'];?></p>
-	<p><?php _e('Visits This Week', 'pmpro')?>: <?php echo $visits['week'];?></p>
-	<p><?php _e('Visits This Month', 'pmpro')?>: <?php echo $visits['month'];?></p>
-	<p><?php _e('Visits YTD', 'pmpro')?>: <?php echo $visits['ytd'];?></p>
-	<p><?php _e('Visits All Time', 'pmpro')?>: <?php echo $visits['alltime'];?></p>
-</div>
-<div style="width: 33%; float: left;">
-	<p><?php _e('Views Today', 'pmpro')?>: <?php echo $views['today'];?></p>
-	<p><?php _e('Views This Week', 'pmpro')?>: <?php echo $views['week'];?></p>
-	<p><?php _e('Views This Month', 'pmpro')?>: <?php echo $views['month'];?></p>
-	<p><?php _e('Views YTD', 'pmpro')?>: <?php echo $views['ytd'];?></p>
-	<p><?php _e('Views All Time', 'pmpro')?>: <?php echo $views['alltime'];?></p>
-</div>
-<div style="width: 33%; float: left;">
-	<p><?php _e('Logins Today', 'pmpro')?>: <?php echo $logins['today'];?></p>
-	<p><?php _e('Logins This Week', 'pmpro')?>: <?php echo $logins['week'];?></p>
-	<p><?php _e('Logins This Month', 'pmpro')?>: <?php echo $logins['month'];?></p>
-	<p><?php _e('Logins YTD', 'pmpro')?>: <?php echo $logins['ytd'];?></p>
-	<p><?php _e('Logins All Time', 'pmpro')?>: <?php echo $logins['alltime'];?></p>
-</div>
-<div class="clear"></div>
+<span id="pmpro_report_login">
+	<table class="wp-list-table widefat fixed striped">
+	<thead>
+		<tr>
+			<th scope="col">&nbsp;</th>
+			<th scope="col"><?php _e('Visits','pmpro'); ?></th>
+			<th scope="col"><?php _e('Views','pmpro'); ?></th>
+			<th scope="col"><?php _e('Logins','pmpro'); ?></th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<th scope="row"><?php _e('Today','pmpro'); ?></th>
+			<td><?php echo number_format_i18n($visits['today']); ?></td>
+			<td><?php echo number_format_i18n($views['today']); ?></td>
+			<td><?php echo number_format_i18n($logins['today']);?></td>
+		</tr>
+		<tr>
+			<th scope="row"><?php _e('This Week','pmpro'); ?></th>
+			<td><?php echo number_format_i18n($visits['week']); ?></td>
+			<td><?php echo number_format_i18n($views['week']); ?></td>
+			<td><?php echo number_format_i18n($logins['week']); ?></td>
+		</tr>
+		<tr>
+			<th scope="row"><?php _e('This Month','pmpro'); ?></th>
+			<td><?php echo number_format_i18n($visits['month']); ?></td>
+			<td><?php echo number_format_i18n($views['month']); ?></td>
+			<td><?php echo number_format_i18n($logins['month']); ?></td>
+		</tr>
+		<tr>
+			<th scope="row"><?php _e('Year to Date','pmpro'); ?></th>
+			<td><?php echo number_format_i18n($visits['ytd']); ?></td>
+			<td><?php echo number_format_i18n($views['ytd']); ?></td>
+			<td><?php echo number_format_i18n($logins['ytd']);?></td>
+		</tr>
+		<tr>
+			<th scope="row"><?php _e('All Time','pmpro'); ?></th>
+			<td><?php echo number_format_i18n($visits['alltime']); ?></td>
+			<td><?php echo number_format_i18n($views['alltime']);?></td>
+			<td><?php echo number_format_i18n($logins['alltime']); ?></td>
+		</tr>
+	</tbody>
+	</table>	
+</span>
 <?php
 }
 
