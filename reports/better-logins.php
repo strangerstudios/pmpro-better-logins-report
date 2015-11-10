@@ -195,15 +195,10 @@ function pmpro_report_better_login_page()
 				foreach($theusers as $auser)
 				{
 					//get meta																					
-					$theuser = get_userdata($auser->ID);
-					$visits = get_user_meta($auser->ID, "pmpro_visits", true);
-					$views = get_user_meta($auser->ID, "pmpro_views", true);
-					$logins = get_user_meta($auser->ID, "pmpro_logins", true);
-					
-					//avoid notices when first activating the plugin
-					$visits = pmproblr_fixOptions($visits);
-					$views = pmproblr_fixOptions($views);
-					$logins = pmproblr_fixOptions($logins);
+					$theuser = get_userdata($auser->ID);			
+					$visits = pmproblr_getValuesForUser("visits", $auser->ID);
+					$views = pmproblr_getValuesForUser("views", $auser->ID);
+					$logins = pmproblr_getValuesForUser("logins", $auser->ID);
 					
 					if(empty($logins))
 						$logins = array("last"=>"N/A", "week"=>"N/A", "month"=>"N/A", "ytd"=>"N/A", "alltime"=>"N/A");
@@ -234,18 +229,18 @@ function pmpro_report_better_login_page()
 								?>
 							</td>
 							<td><?php if(!empty($visits['last'])) echo $visits['last'];?></td>
-							<td><?php if(!empty($visits['month']) && pmpro_isDateThisWeek($visits['last'])) echo $visits['week'];?></td>
+							<td><?php if(!empty($visits['week']) && pmpro_isDateThisWeek($visits['last'])) echo $visits['week'];?></td>
 							<td><?php if(!empty($visits['month']) && pmpro_isDateThisMonth($visits['last'])) echo $visits['month'];?></td>
-							<td><?php if(!empty($visits['month']) && pmpro_isDateThisYear($visits['last'])) echo $visits['ytd'];?></td>
+							<td><?php if(!empty($visits['ytd']) && pmpro_isDateThisYear($visits['last'])) echo $visits['ytd'];?></td>
 							<td><?php if(!empty($visits['alltime'])) echo $visits['alltime'];?></td>							
-							<td><?php if(!empty($views['month']) && pmpro_isDateThisWeek($views['last'])) echo $views['week'];?></td>
+							<td><?php if(!empty($views['week']) && pmpro_isDateThisWeek($views['last'])) echo $views['week'];?></td>
 							<td><?php if(!empty($views['month']) && pmpro_isDateThisMonth($views['last'])) echo $views['month'];?></td>
-							<td><?php if(!empty($views['month']) && pmpro_isDateThisYear($views['last'])) echo $views['ytd'];?></td>
+							<td><?php if(!empty($views['ytd']) && pmpro_isDateThisYear($views['last'])) echo $views['ytd'];?></td>
 							<td><?php if(!empty($views['alltime'])) echo $views['alltime'];?></td>
 							<td><?php if(!empty($logins['last'])) echo $logins['last'];?></td>
-							<td><?php if(!empty($logins['month']) && pmpro_isDateThisWeek($logins['last'])) echo $logins['week'];?></td>
+							<td><?php if(!empty($logins['week']) && pmpro_isDateThisWeek($logins['last'])) echo $logins['week'];?></td>
 							<td><?php if(!empty($logins['month']) && pmpro_isDateThisMonth($logins['last'])) echo $logins['month'];?></td>
-							<td><?php if(!empty($logins['month']) && pmpro_isDateThisYear($logins['last'])) echo $logins['ytd'];?></td>
+							<td><?php if(!empty($logins['ytd']) && pmpro_isDateThisYear($logins['last'])) echo $logins['ytd'];?></td>
 							<td><?php if(!empty($logins['alltime'])) echo $logins['alltime'];?></td>
 						</tr>
 					<?php
@@ -529,8 +524,8 @@ function pmpro_report_better_login_wp_views()
 add_action("wp_head", "pmpro_report_better_login_wp_views");
 
 //track logins
-function pmpro_report_better_login_wp_login($user_login)
+function pmpro_report_better_login_wp_login($user_login, $user)
 {
-	pmproblr_trackValues("logins");	
+	pmproblr_trackValues("logins", $user->ID);	
 }
-add_action("wp_login", "pmpro_report_better_login_wp_login");
+add_action("wp_login", "pmpro_report_better_login_wp_login", 10 ,2);
