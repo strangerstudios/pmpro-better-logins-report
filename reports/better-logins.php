@@ -429,10 +429,10 @@ function pmproblr_trackValues($type, $user_id = NULL)
 		{
 			//track for user
 			$values['last'] = date(get_option("date_format"), $now);
-			$values['alltime']++;
+			$values['alltime'] = ( !empty( $values['alltime'] ) ? ( $values['alltime'] + 1 ) : 1 );
 			
 			if($thisweek == $values['thisweek'])
-				$values['week']++;
+				$values['week'] = ( !empty( $values['week'] ) ? ( $values['week'] + 1 ) : 1 );
 			else
 			{
 				$values['week'] = 1;
@@ -440,7 +440,7 @@ function pmproblr_trackValues($type, $user_id = NULL)
 			}
 					
 			if($thismonth == $values['thismonth'])
-				$values['month']++;
+				$values['month'] = ( !empty( $values['month'] ) ? ( $values['month'] + 1 ) : 1 );
 			else
 			{
 				$values['month'] = 1;
@@ -448,7 +448,7 @@ function pmproblr_trackValues($type, $user_id = NULL)
 			}
 					
 			if($thisyear == $values['thisyear'])
-				$values['ytd']++;
+				$values['ytd'] = ( !empty( $values['ytd'] ) ? ( $values['ytd'] + 1 ) : 1 );
 			else
 			{
 				$values['ytd'] = 1;
@@ -463,10 +463,10 @@ function pmproblr_trackValues($type, $user_id = NULL)
 	//track cumulative stats
 	$allvalues = pmproblr_getAllValues($type);
 
-	$allvalues['alltime']++;	
+	$allvalues['alltime'] = ( !empty( $allvalues['alltime'] ) ? ($allvalues['alltime'] + 1) : 1 );	
 	
 	if($thisdate == $allvalues['thisdate'])
-		$allvalues['today']++;
+		$allvalues['today'] = ( !empty( $allvalues['today'] ) ? ( $allvalues['today'] + 1 ) : 1 );
 	else
 	{
 		$allvalues['today'] = 1;
@@ -474,7 +474,7 @@ function pmproblr_trackValues($type, $user_id = NULL)
 	}
 	
 	if($thisweek == $allvalues['thisweek'])
-		$allvalues['week']++;
+		$allvalues['week'] = ( !empty( $allvalues['week'] ) ? ( $allvalues['week'] + 1 ) : 1 );
 	else
 	{
 		$allvalues['week'] = 1;
@@ -482,7 +482,7 @@ function pmproblr_trackValues($type, $user_id = NULL)
 	}
 	
 	if($thismonth == $allvalues['thismonth'])
-		$allvalues['month']++;
+		$allvalues['month'] = ( !empty( $allvalues['month'] ) ? ( $allvalues['month'] + 1 ) : 1 );
 	else
 	{
 		$allvalues['month'] = 1;
@@ -490,7 +490,7 @@ function pmproblr_trackValues($type, $user_id = NULL)
 	}
 	
 	if($thisyear == $allvalues['thisyear'])
-		$allvalues['ytd']++;
+		$allvalues['ytd'] = ( !empty( $allvalues['ytd'] ) ? ( $allvalues['ytd'] + 1 ) : 1 ) ;
 	else
 	{
 		$allvalues['ytd'] = 1;
